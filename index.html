@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>NEXUS OS v12.9.9.9 - Final Engineering</title>
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --accent: #00aaff;
+            --matrix: #39ff14;
+            --danger: #ff4444;
+            --true-black: #000;
+            --deep-gray: #101010;
+            --electric: #ccf2ff;
+            --glass: rgba(15, 25, 35, 0.85);
+            --vista-border: rgba(255, 255, 255, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; }
+
+        /* BOOT SCREEN - DESIGN ESTENDIDO */
+        #boot-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; padding: 40px; }
+        .boot-top-layer { position: absolute; top: 40px; left: 40px; right: 40px; pointer-events: none; }
+        .nexus-title { width: 336px; height: 56px; margin-bottom: 20px; }
+        .nexus-letter { fill: none; stroke: #d1d1d1; stroke-width: 9; stroke-linejoin: round; }
+        .boot-info { font-size: 11px; line-height: 1.6; border-left: 1px solid var(--accent); padding-left: 20px; height: 180px; overflow: hidden; font-family: 'Courier New', monospace; color: #aaa; }
+        .boot-info b { color: var(--matrix); }
+        .boot-info i { color: var(--danger); font-style: normal; font-weight: bold; }
+
+        /* HUB CENTRAL COM ÓRBITAS */
+        .central-hub { position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; width: 450px; }
+        .nexus-core-container { width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: -45px; z-index: 10; }
+        .nexus-sphere-core { width: 68px; height: 68px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, var(--accent) 45%, #001a33); box-shadow: 0 0 50px rgba(0, 170, 255, 0.9); z-index: 12; animation: pulse-breathing 3s ease-in-out infinite; }
+        .electron-cloud { position: absolute; width: 100%; height: 100%; animation: vibration 0.05s infinite; }
+        .orbit { position: absolute; border: 1px solid rgba(0, 170, 255, 0.2); border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .particle { position: absolute; width: 5px; height: 5px; background: var(--electric); border-radius: 50%; box-shadow: 0 0 15px var(--accent); filter: blur(1px); }
+        .o1 { width: 110px; height: 40px; animation: rotate 0.15s linear infinite; }
+        .o2 { width: 40px; height: 110px; animation: rotate 0.1s linear infinite reverse; }
+        .o3 { width: 95px; height: 95px; animation: rotate 0.25s linear infinite; }
+        .o4 { width: 135px; height: 55px; animation: rotate 0.2s linear infinite; }
+
+        @keyframes rotate { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes vibration { 0% { transform: translate(0,0); } 50% { transform: translate(1px, -1px); } 100% { transform: translate(-1px, 1px); } }
+        @keyframes pulse-breathing { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        /* LOADING ZONE (+30% COMPRIMENTO) */
+        .loading-zone { width: 270px; display: flex; flex-direction: column; align-items: center; z-index: 5; }
+        .bar-container { width: 100%; height: 3px; background: rgba(255,255,255,0.05); overflow: hidden; border-radius: 1px; }
+        .bar-fill { width: 0%; height: 100%; background: var(--matrix); box-shadow: 0 0 15px var(--matrix); transition: width 0.2s linear; }
+        .telemetry-row { margin-top: 8px; font-family: 'Courier New', monospace; font-size: 10px; color: var(--matrix); letter-spacing: 1px; display: flex; gap: 15px; white-space: nowrap; }
+
+        /* VISTA UI - MANTIDA ORIGINAL */
+        #vista-ui { display: none; width: 100%; height: 100%; padding: 15px; }
+        .main-container { display: flex; gap: 15px; width: 100%; height: 96vh; }
+        .side-panel { min-width: 280px; display: flex; flex-direction: column; gap: 12px; }
+        .nav-header { background: var(--glass); backdrop-filter: blur(20px); border-radius: 12px; border: 1px solid var(--vista-border); padding: 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .row { display: flex; gap: 8px; width: 100%; }
+        .btn-mode { flex: 1; height: 34px; background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(0,0,0,0.3)); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #bbb; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 10px; transition: 0.3s ease; }
+        .btn-mode.active { background: linear-gradient(to bottom, var(--accent), #004477); color: #fff; border-color: #fff; }
+        .content-list { flex: 1; overflow-y: auto; background: var(--glass); backdrop-filter: blur(20px); border-radius: 12px; border: 1px solid var(--vista-border); padding: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .item { padding: 10px 12px; font-size: 11px; color: var(--matrix); cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(57,255,20,0.03); border-radius: 4px; margin-bottom: 2px; }
+        .item.active { background: rgba(0, 170, 255, 0.15); color: var(--accent); border-left: 3px solid var(--accent); }
+        .player-zone { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        .video-box { flex: 1; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid var(--vista-border); box-shadow: 0 0 30px rgba(0,0,0,0.8); }
+        .video-js { width: 100% !important; height: 100% !important; }
+        .action-box { height: 80px; background: var(--glass); backdrop-filter: blur(15px); border-radius: 12px; border: 1px solid var(--vista-border); display: flex; align-items: center; justify-content: space-between; padding: 0 25px; }
+        .btn-3d { width: 48px; height: 48px; background: radial-gradient(circle at top, #333, #080808); border: 1px solid #000; border-radius: 50%; color: #777; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.7), inset 0 2px 2px rgba(255,255,255,0.05); transition: 0.3s; }
+        .btn-3d:hover { color: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="boot-screen">
+    <div class="boot-top-layer">
+        <svg class="nexus-title" viewBox="0 0 450 100">
+            <path class="nexus-letter" d="M10,80 V20 L60,80 V20" />
+            <path class="nexus-letter" d="M85,20 H135 M85,50 H125 M85,80 H135" />
+            <path class="nexus-letter" d="M160,20 L210,80 M210,20 L160,80" />
+            <path class="nexus-letter" d="M235,20 V75 Q235,85 245,85 H275 Q285,85 285,75 V20" />
+            <path class="nexus-letter" d="M360,20 H315 V50 H360 V80 H315" />
+        </svg>
+        <div class="boot-info" id="term-info"></div>
+    </div>
+
+    <div class="central-hub">
+        <div class="nexus-core-container">
+            <div class="electron-cloud">
+                <div class="orbit o1"><div class="particle" style="top:0; left:50%;"></div></div>
+                <div class="orbit o2"><div class="particle" style="top:50%; right:0%;"></div></div>
+                <div class="orbit o3"><div class="particle" style="bottom:0; left:50%;"></div></div>
+                <div class="orbit o4"><div class="particle" style="top:50%; left:0%;"></div></div>
+            </div>
+            <div class="nexus-sphere-core"></div>
+        </div>
+        
+        <div class="loading-zone">
+            <div class="bar-container"><div id="loader" class="bar-fill"></div></div>
+            <div class="telemetry-row">
+                <span id="pct-display">0%</span>
+                <span id="st-msg">INITIALIZING_NEXUS_CORE...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="vista-ui">
+    <div class="main-container">
+        <aside class="side-panel">
+            <div class="nav-header">
+                <div class="row">
+                    <button id="btn-all" class="btn-mode active" onclick="setMode('all')"><i data-lucide="monitor"></i> TV</button>
+                    <button id="btn-fav" class="btn-mode" onclick="setMode('fav')"><i data-lucide="star"></i> FAVS</button>
+                </div>
+                <button id="btn-toku" class="btn-mode" onclick="setMode('toku')"><i data-lucide="zap"></i> TOKUSATSU</button>
+                <button id="btn-radio" class="btn-mode" onclick="setMode('radio')"><i data-lucide="radio"></i> RÁDIO</button>
+            </div>
+            <div class="content-list" id="channel-list"></div>
+        </aside>
+        
+        <main class="player-zone">
+            <div class="video-box">
+                <video id="nexus-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"></video>
+            </div>
+            <div class="action-box">
+                <div style="display:flex; gap:15px">
+                    <button class="btn-3d" onclick="prev()"><i data-lucide="skip-back"></i></button>
+                    <button class="btn-3d" onclick="next()"><i data-lucide="skip-forward"></i></button>
+                    <button class="btn-3d" onclick="location.reload()"><i data-lucide="refresh-cw"></i></button>
+                    <button class="btn-3d" style="color:var(--danger)" onclick="clearFavs()"><i data-lucide="trash-2"></i></button>
+                </div>
+                <div style="display:flex; align-items:center; gap:25px">
+                    <div id="net-speed" style="font-size:10px; color:var(--matrix); letter-spacing: 1px; border: 1px solid var(--vista-border); padding: 5px 10px; border-radius: 4px;">-- MBPS</div>
+                    <button class="btn-3d" style="color:var(--danger)" onclick="window.location.href='about:blank'"><i data-lucide="power"></i></button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script>
+    const player = videojs('nexus-player');
+    const term = document.getElementById('term-info');
+    const bar = document.getElementById('loader');
+    const pctTxt = document.getElementById('pct-display');
+    const stMsg = document.getElementById('st-msg');
+
+    let allChannels = [];
+    let favorites = JSON.parse(localStorage.getItem('nexus_favs_v12')) || [];
+    let currentIndex = -1;
+    let currentMode = 'all';
+    let bootAttempts = 1;
+
+    async function log(msg, isError = false) {
+        let div = document.createElement('div');
+        if(isError) div.innerHTML = `> <i>!! ${msg}</i>`;
+        else div.innerHTML = `> ${msg}`;
+        if(isError) div.style.color = "var(--danger)";
+        term.appendChild(div);
+        term.scrollTop = term.scrollHeight;
+        await new Promise(r => setTimeout(r, 40));
+    }
+
+    async function runBoot() {
+        await log(`ENGINEER: <b>SBarreto & Cia.</b>`);
+        await log(`BOOT_SEQUENCE: ATTEMPT [${bootAttempts}/3]`);
+        
+        const url = "https://raw.githubusercontent.com/SamirBarreto32/animetoku/main/lista%20de%20canais%20abertos.txt";
+        
+        try {
+            stMsg.textContent = "ALLOCATING_VIEWPORT...";
+            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}&ts=${Date.now()}`);
+            if(!res.ok) throw new Error("MANIFEST_SYNC_FAILED");
+            
+            const data = await res.json();
+            const lines = data.contents.split('\n');
+            let tempName = "";
+
+            for(let i=0; i<lines.length; i++) {
+                let l = lines[i].trim();
+                if(l.startsWith('#EXTINF')) {
+                    tempName = l.split(',').pop().trim();
+                } else if(l.startsWith('http')) {
+                    const id = btoa(tempName + l).substring(10, 20);
+                    allChannels.push({ id, name: tempName.toUpperCase(), url: l });
+                }
+                let p = Math.round((i / lines.length) * 100);
+                bar.style.width = p + "%";
+                pctTxt.textContent = p + "%";
+                if(p === 50) stMsg.textContent = "CORE_BUS_STABILIZED...";
+            }
+
+            await log(`DEPLOY_SUCCESS: <b>${allChannels.length}</b> NODES`);
+            setTimeout(() => {
+                document.getElementById('boot-screen').style.display = 'none';
+                document.getElementById('vista-ui').style.display = 'block';
+                render();
+                play(0);
+            }, 800);
+
+        } catch(e) {
+            await log(`KERNEL_PANIC: ${e.message}`, true);
+            if(bootAttempts < 3) {
+                bootAttempts++;
+                await log(`REBOOT_SCHEDULED_1500MS...`);
+                allChannels = [];
+                setTimeout(runBoot, 1500);
+            } else {
+                await log(`FATAL_OVERFLOW: FULL_STACK_RESET_REQUIRED`, true);
+                setTimeout(() => location.reload(), 2000);
+            }
+        }
+    }
+
+    function render() {
+        const container = document.getElementById('channel-list');
+        const list = currentMode === 'fav' ? allChannels.filter(c => favorites.includes(c.id)) : allChannels;
+        container.innerHTML = list.map(c => {
+            const isPlaying = allChannels[currentIndex]?.id === c.id;
+            const activeClass = isPlaying ? 'active' : '';
+            return `<div class="item ${activeClass}" onclick="playById('${c.id}')">
+                <span>${c.name}</span>
+                <i data-lucide="star" style="width:14px; fill:${favorites.includes(c.id) ? 'var(--accent)' : 'none'}" onclick="toggleFav(event,'${c.id}')"></i>
+            </div>`;
+        }).join('');
+        lucide.createIcons();
+    }
+
+    function toggleFav(e, id) {
+        e.stopPropagation();
+        favorites = favorites.includes(id) ? favorites.filter(f => f !== id) : [...favorites, id];
+        localStorage.setItem('nexus_favs_v12', JSON.stringify(favorites));
+        render();
+    }
+
+    function clearFavs() {
+        if(confirm("LIMPAR FAVORITOS?")) {
+            favorites = [];
+            localStorage.removeItem('nexus_favs_v12');
+            render();
+        }
+    }
+
+    function setMode(m) {
+        currentMode = m;
+        document.querySelectorAll('.btn-mode').forEach(b => b.classList.remove('active'));
+        document.getElementById(`btn-${m}`).classList.add('active');
+        render();
+    }
+
+    function playById(id) {
+        const idx = allChannels.findIndex(c => c.id === id);
+        if(idx !== -1) play(idx);
+    }
+
+    function play(idx) {
+        if(idx < 0 || idx >= allChannels.length) return;
+        currentIndex = idx;
+        player.src({ type: 'application/x-mpegURL', src: allChannels[idx].url });
+        player.play().catch(() => {});
+        render();
+    }
+
+    function next() { play(currentIndex + 1); }
+    function prev() { play(currentIndex - 1); }
+
+    window.onload = () => { 
+        lucide.createIcons(); 
+        runBoot();
+        const conn = navigator.connection || {};
+        const speed = conn.downlink || "10";
+        document.getElementById('net-speed').textContent = `${speed} MBPS_STABLE`;
+    };
+</script>
+</body>
+</html>
