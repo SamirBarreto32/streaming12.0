@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>NEXUS RÁDIO 12.0 - Win Black Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --win-black: #1a1a1a;
+            --win-dark-gray: #333333;
+            --win-medium-gray: #4d4d4d;
+            --win-text: #e0e0e0;
+            --xp-orange: #ff8a00;
+            --xp-border: #000000;
+        }
+
+        body {
+            /* Background escuro e minimalista */
+            background: #0f0f0f url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            font-family: "Tahoma", "Segoe UI", sans-serif;
+            height: 100vh; 
+            margin: 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Moldura da Janela Black */
+        .nexus-frame {
+            width: 98vw; 
+            height: 96vh;
+            max-width: 1200px;
+            background: var(--win-dark-gray);
+            border: 2px solid #000;
+            border-top-left-radius: 8px; border-top-right-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden;
+        }
+
+        /* Barra de Título Noir */
+        header {
+            background: linear-gradient(to bottom, #444 0%, #111 10%, #000 100%);
+            padding: 0 10px; 
+            min-height: 32px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            color: #fff; 
+            border-bottom: 1px solid #555;
+            flex-shrink: 0;
+        }
+
+        .win-controls { display: flex; gap: 3px; }
+        .win-btn {
+            width: 22px; height: 22px; border: 1px solid #555; border-radius: 3px;
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 11px; font-weight: bold; cursor: pointer;
+            text-decoration: none; color: #fff;
+            background: #222;
+        }
+        .btn-close { background: linear-gradient(to bottom, #d9534f, #a94442); border-color: #843534; }
+        .btn-close:hover { background: #ff3333; }
+
+        /* Grid Principal */
+        .app-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 320px; 
+            flex: 1; 
+            overflow: hidden; 
+            padding: 4px; 
+            gap: 4px; 
+            background: #222;
+        }
+
+        /* Lista de Rádios modo Escuro */
+        .list-container { 
+            background: #111; 
+            border: 1px solid #444; 
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .radio-row {
+            display: grid; 
+            grid-template-columns: 40px 1fr 70px 40px;
+            padding: 8px 10px; 
+            border-bottom: 1px solid #222; 
+            cursor: pointer; 
+            color: #aaa;
+            font-size: 12px;
+            align-items: center;
+        }
+        .radio-row:hover { background: #333; color: #fff; }
+        .radio-row.active { background: #444; color: #00ff00; border-left: 3px solid #00ff00; }
+        
+        /* Painel Lateral */
+        .side-panel { 
+            background: #2a2a2a; 
+            display: flex; 
+            flex-direction: column;
+            border-left: 1px solid #444;
+        }
+
+        .side-content { padding: 8px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        
+        .monitor-stage { 
+            height: 80px; background: #000; border: 1px solid #444; flex-shrink: 0;
+        }
+
+        .status-header {
+            background: #444;
+            color: #00ff00; font-size: 11px; padding: 5px 10px; font-weight: bold;
+            border-top-left-radius: 5px; border-top-right-radius: 5px;
+            text-transform: uppercase;
+        }
+
+        .logo-area {
+            height: 110px; display: flex; align-items: center; justify-content: center;
+            background: #111; border: 1px solid #444; flex-shrink: 0;
+        }
+        .radio-logo-img { max-height: 100px; max-width: 90%; object-fit: contain; filter: drop-shadow(0 0 5px #000); }
+
+        .info-terminal {
+            background: #000; border: 1px solid #444; padding: 10px; 
+            flex: 1; font-size: 11px; color: #00ff00; font-family: 'Courier New', monospace;
+            overflow-y: auto;
+        }
+
+        .neo-input { 
+            background: #333; border: 1px solid #555; color: #fff;
+            padding: 4px; font-size: 12px; height: 28px; 
+        }
+        
+        .head-btn {
+            background: #444; color: #fff;
+            border: 1px solid #666; border-radius: 3px;
+            padding: 4px 10px; font-size: 11px; cursor: pointer;
+        }
+        .head-btn:hover { background: #555; border-color: #888; }
+
+        .btn-action { 
+            background: linear-gradient(to bottom, #444, #111);
+            border: 1px solid #00ff00; border-radius: 4px;
+            color: #00ff00; padding: 10px; font-weight: bold; cursor: pointer;
+            text-transform: uppercase;
+        }
+        .btn-action:hover { background: #00ff00; color: #000; }
+
+        .vol-slider { width: 100%; height: 6px; cursor: pointer; accent-color: #00ff00; }
+
+        .menu-bar { background: #333; border-bottom: 1px solid #444; display: flex; align-items: center; padding: 2px 8px; font-size: 11px; color: #ccc; }
+        .menu-item { padding: 2px 8px; cursor: pointer; }
+        .menu-item:hover { background: #444; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="nexus-frame">
+        <header>
+            <div class="flex items-center gap-2">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Windows_XP_Logo.svg" width="16" style="filter: grayscale(1) invert(1);">
+                <span class="font-bold text-xs sm:text-sm truncate">Nexus Rádio 12.0 - [SBarreto_Engineering]</span>
+            </div>
+            <div class="win-controls">
+                <div class="win-btn">_</div>
+                <div class="win-btn">□</div>
+                <a href="https://samirbarreto32.github.io/streaming12.0/" class="win-btn btn-close">X</a>
+            </div>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu-item">Arquivo</div>
+            <div class="menu-item">Exibir</div>
+            <div class="menu-item">Favoritos</div>
+            <div class="menu-item">Ajuda</div>
+            <div class="ml-auto font-bold pr-2 text-[#00ff00]" id="clock">00:00:00</div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 p-2 bg-[#222] border-b border-[#444] flex-shrink-0">
+            <input type="text" id="search" class="neo-input flex-1 min-w-[150px]" placeholder="Pesquisar rádio...">
+            <select id="countrySelect" class="neo-input w-32"></select>
+            <select id="stateSelect" class="neo-input w-32" style="display:none;"></select>
+            <button onclick="showFavorites()" class="head-btn">⭐ Favs</button>
+            <button onclick="resetFilters()" class="head-btn">🔄 Update</button>
+        </div>
+
+        <main class="app-grid">
+            <div class="list-container" id="listBody"></div>
+
+            <aside class="side-panel">
+                <div class="side-content">
+                    <div class="monitor-stage">
+                        <canvas id="vu-canvas" style="width:100%; height:100%"></canvas>
+                    </div>
+                    
+                    <div class="status-header">System.Status</div>
+                    <div class="logo-area" id="stationLogo">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">
+                    </div>
+                    
+                    <div class="info-terminal" id="infoBox">
+                        <div id="progContent">> System Ready...<br>> Select Station_</div>
+                    </div>
+
+                    <div class="bg-[#1a1a1a] p-3 border border-[#444] rounded shadow-inner flex-shrink-0">
+                        <div class="mb-2 text-[10px] font-bold text-[#00ff00] truncate" id="stName">STANDBY</div>
+                        <div class="flex gap-1">
+                            <button onclick="prevStation()" class="head-btn flex-1">PREV</button>
+                            <button id="playBtn" class="btn-action flex-[2]">PLAY</button>
+                            <button onclick="nextStation()" class="head-btn flex-1">NEXT</button>
+                        </div>
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="text-[9px] font-bold text-white">VOL:</span>
+                            <input type="range" id="vol" min="0" max="1" step="0.05" value="0.7" class="vol-slider">
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <audio id="audio" crossorigin="anonymous"></audio>
+
+    <script>
+        const API = "https://de1.api.radio-browser.info/json";
+        const BR_STATES = ["São Paulo", "Rio de Janeiro", "Sergipe", "Minas Gerais", "Bahia", "Paraná", "Ceará", "Pernambuco", "Rio Grande do Sul"];
+        let currentStations = [], currentIndex = -1, audioCtx, analyser, dataArray;
+        let favorites = JSON.parse(localStorage.getItem('NEXUS_FAVS')) || [];
+
+        const els = {
+            audio: document.getElementById('audio'),
+            list: document.getElementById('listBody'),
+            countrySelect: document.getElementById('countrySelect'),
+            stateSelect: document.getElementById('stateSelect'),
+            search: document.getElementById('search'),
+            playBtn: document.getElementById('playBtn'),
+            stName: document.getElementById('stName'),
+            logo: document.getElementById('stationLogo'),
+            progContent: document.getElementById('progContent'),
+            clock: document.getElementById('clock')
+        };
+
+        async function init() {
+            updateClock(); setInterval(updateClock, 1000);
+            await fetchCountries();
+            renderStateOptions();
+            els.countrySelect.value = "Brazil";
+            handleCountryChange();
+            els.countrySelect.onchange = handleCountryChange;
+            els.stateSelect.onchange = () => fetchStations();
+            els.search.oninput = debounce(() => fetchStations(), 500);
+            els.playBtn.onclick = togglePlay;
+            await fetchStations(true); 
+        }
+
+        function handleCountryChange() {
+            els.search.value = "";
+            els.stateSelect.style.display = els.countrySelect.value === "Brazil" ? "block" : "none";
+            fetchStations();
+        }
+
+        function resetFilters() {
+            els.search.value = "";
+            els.countrySelect.value = "Brazil";
+            handleCountryChange();
+        }
+
+        function renderStateOptions() { 
+            els.stateSelect.innerHTML = '<option value="">(All States)</option>' + BR_STATES.map(s => `<option value="${s}">${s}</option>`).join(''); 
+        }
+        
+        async function fetchCountries() {
+            try {
+                const res = await fetch(`${API}/countries`);
+                const countries = await res.json();
+                els.countrySelect.innerHTML = countries.sort((a,b)=>a.name.localeCompare(b.name)).map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+            } catch(e) { console.error("API Error"); }
+        }
+
+        async function fetchStations(isFirstLoad = false) {
+            els.list.innerHTML = '<div class="p-4 text-xs text-green-500">> Loading...</div>';
+            let url = `${API}/stations/search?limit=100&hidebroken=true&order=clickcount&reverse=true`;
+            if (els.search.value) url += `&name=${encodeURIComponent(els.search.value)}`;
+            if (els.countrySelect.value) url += `&country=${encodeURIComponent(els.countrySelect.value)}`;
+            if (els.stateSelect.value && els.countrySelect.value === "Brazil") url += `&state=${encodeURIComponent(els.stateSelect.value)}`;
+            
+            try {
+                const res = await fetch(url);
+                currentStations = await res.json();
+                renderStations();
+                if (isFirstLoad && currentStations.length > 0) playStation(0);
+            } catch(e) { els.list.innerHTML = '<div class="p-4 text-xs text-red-600">> Error loading list.</div>'; }
+        }
+
+        function renderStations() {
+            els.list.innerHTML = currentStations.map((s, i) => {
+                const isFav = favorites.some(f => f.stationuuid === s.stationuuid);
+                return `
+                <div class="radio-row ${i === currentIndex ? 'active' : ''}" onclick="playStation(${i})">
+                    <span style="opacity: 0.5; font-size:10px">${i + 1}</span>
+                    <span class="truncate font-bold">${s.name}</span>
+                    <span class="text-right opacity-70" style="font-size: 10px">${s.bitrate || '--'}k</span>
+                    <span onclick="event.stopPropagation(); toggleFav('${s.stationuuid}')">${isFav ? '❤️' : '🤍'}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleFav(id) {
+            const station = currentStations.find(s => s.stationuuid === id) || favorites.find(s => s.stationuuid === id);
+            const idx = favorites.findIndex(f => f.stationuuid === id);
+            if (idx > -1) favorites.splice(idx, 1);
+            else favorites.push(station);
+            localStorage.setItem('NEXUS_FAVS', JSON.stringify(favorites));
+            renderStations();
+        }
+
+        function showFavorites() {
+            if (favorites.length === 0) { alert("No favorites."); return; }
+            currentStations = [...favorites];
+            currentIndex = -1;
+            renderStations();
+        }
+
+        function playStation(index) {
+            if (index < 0 || index >= currentStations.length) return;
+            currentIndex = index;
+            const s = currentStations[currentIndex];
+            els.logo.innerHTML = s.favicon ? `<img src="${s.favicon}" class="radio-logo-img">` : `<img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">`;
+            updateInfo(s);
+            if (!audioCtx) setupAudio();
+            els.audio.src = s.url_resolved; 
+            els.audio.play().catch(e => console.log("Play error"));
+            els.stName.innerText = s.name;
+            renderStations();
+        }
+
+        function updateInfo(s) {
+            els.progContent.innerHTML = `
+                > NAME: ${s.name}<br>
+                > GENRE: ${s.tags ? s.tags.split(',')[0] : 'N/A'}<br>
+                > COUNTRY: ${s.country}<br>
+                > CODEC: ${s.codec || 'MP3'}<br>
+                > BITRATE: ${s.bitrate || '??'} kbps
+            `;
+        }
+
+        function setupAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const src = audioCtx.createMediaElementSource(els.audio);
+            analyser = audioCtx.createAnalyser();
+            src.connect(analyser); analyser.connect(audioCtx.destination);
+            analyser.fftSize = 64; dataArray = new Uint8Array(analyser.frequencyBinCount);
+            const canvas = document.getElementById('vu-canvas'); const ctx = canvas.getContext('2d');
+            const draw = () => {
+                requestAnimationFrame(draw); analyser.getByteFrequencyData(dataArray);
+                canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+                const bw = canvas.width / dataArray.length;
+                dataArray.forEach((v, i) => {
+                    const h = (v/255)*canvas.height; 
+                    ctx.fillStyle = `rgb(0, ${v}, 0)`; // Visualizer verde Matrix
+                    ctx.fillRect(i*bw, canvas.height-h, bw-1, h);
+                });
+            };
+            draw();
+        }
+
+        function togglePlay() { if (els.audio.paused) els.audio.play(); else els.audio.pause(); }
+        function debounce(f, t) { let timer; return (...a) => { clearTimeout(timer); timer = setTimeout(() => f.apply(this, a), t); }; }
+        function nextStation() { playStation(currentIndex + 1); }
+        function prevStation() { playStation(currentIndex - 1); }
+        function updateClock() { els.clock.innerText = new Date().toLocaleTimeString('pt-BR'); }
+        els.audio.onplay = () => { els.playBtn.innerText = "STOP"; };
+        els.audio.onpause = () => { els.playBtn.innerText = "PLAY"; };
+        document.getElementById('vol').oninput = (e) => els.audio.volume = e.target.value;
+
+        init();
+    </script>
+</body>
+</html>
