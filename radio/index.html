@@ -116,6 +116,7 @@
         .logo-area {
             height: 110px; display: flex; align-items: center; justify-content: center;
             background: #111; border: 1px solid #444; flex-shrink: 0;
+            overflow: hidden;
         }
         .radio-logo-img { max-height: 100px; max-width: 90%; object-fit: contain; filter: drop-shadow(0 0 5px #000); }
 
@@ -123,6 +124,7 @@
             background: #000; border: 1px solid #444; padding: 10px; 
             flex: 1; font-size: 11px; color: #00ff00; font-family: 'Courier New', monospace;
             overflow-y: auto;
+            word-break: break-all;
         }
 
         .neo-input { 
@@ -194,7 +196,7 @@
                     
                     <div class="status-header">System.Status</div>
                     <div class="logo-area" id="stationLogo">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e3/Windows_Media_Player_icon.png" width="50" style="opacity: 0.3; filter: grayscale(1);">
                     </div>
                     
                     <div class="info-terminal" id="infoBox">
@@ -287,7 +289,7 @@
                 const res = await fetch(url);
                 currentStations = await res.json();
                 renderStations();
-                if (isFirstLoad && currentStations.length > 0) playStation(0);
+                // Removido o playStation automático para evitar bloqueio de AudioContext sem clique
             } catch(e) { els.list.innerHTML = '<div class="p-4 text-xs text-red-600">> Error loading list.</div>'; }
         }
 
@@ -320,30 +322,38 @@
             renderStations();
         }
 
-        function playStation(index) {
+        async function playStation(index) {
             if (index < 0 || index >= currentStations.length) return;
             currentIndex = index;
             const s = currentStations[currentIndex];
             
-            // Tenta converter para HTTPS para evitar bloqueio de Mixed Content
-            let streamUrl = s.url_resolved;
-            if (streamUrl.startsWith("http://")) {
-                streamUrl = streamUrl.replace("http://", "https://");
+            // Ativa o contexto de áudio após o clique (Resolve erro do print)
+            if (!audioCtx || audioCtx.state === 'suspended') {
+                setupAudio();
             }
 
-            els.logo.innerHTML = s.favicon ? `<img src="${s.favicon}" class="radio-logo-img">` : `<img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">`;
+            // Exibe o logo ou placeholder se falhar
+            els.logo.innerHTML = s.favicon ? 
+                `<img src="${s.favicon}" class="radio-logo-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/e3/Windows_Media_Player_icon.png'; this.style.opacity='0.3'">` : 
+                `<img src="https://upload.wikimedia.org/wikipedia/commons/e/e3/Windows_Media_Player_icon.png" width="50" style="opacity: 0.3; filter: grayscale(1);">`;
             
             updateInfo(s);
             
-            if (!audioCtx) setupAudio();
-            
-            // Tenta tocar com HTTPS, se der erro, volta para a original (Fallback)
+            // Resolve problema de link HTTP vs HTTPS
+            let streamUrl = s.url_resolved;
             els.audio.src = streamUrl; 
-            els.audio.play().catch(e => {
+            
+            try {
+                await els.audio.play();
+            } catch (e) {
                 console.warn("Falha no HTTPS, tentando URL original...");
-                els.audio.src = s.url_resolved;
-                els.audio.play().catch(err => console.error("Erro ao reproduzir stream."));
-            });
+                // Se falhar (erro de CORS ou HTTPS), tenta sem CrossOrigin para pelo menos sair o som
+                els.audio.crossOrigin = null;
+                els.audio.src = s.url;
+                els.audio.play().catch(err => {
+                    els.progContent.innerHTML += `<br><span style="color:red">> ERROR: STREAM UNREACHABLE</span>`;
+                });
+            }
 
             els.stName.innerText = s.name;
             renderStations();
@@ -352,7 +362,7 @@
         function updateInfo(s) {
             els.progContent.innerHTML = `
                 > NAME: ${s.name}<br>
-                > URL: ${s.url_resolved}<br>
+                > URL: ${s.url_resolved.substring(0, 40)}...<br>
                 > GENRE: ${s.tags ? s.tags.split(',')[0] : 'N/A'}<br>
                 > COUNTRY: ${s.country}<br>
                 > CODEC: ${s.codec || 'MP3'}<br>
@@ -361,32 +371,53 @@
         }
 
         function setupAudio() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const src = audioCtx.createMediaElementSource(els.audio);
-            analyser = audioCtx.createAnalyser();
-            src.connect(analyser); analyser.connect(audioCtx.destination);
-            analyser.fftSize = 64; dataArray = new Uint8Array(analyser.frequencyBinCount);
-            const canvas = document.getElementById('vu-canvas'); const ctx = canvas.getContext('2d');
-            const draw = () => {
-                requestAnimationFrame(draw); analyser.getByteFrequencyData(dataArray);
-                canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
-                const bw = canvas.width / dataArray.length;
-                dataArray.forEach((v, i) => {
-                    const h = (v/255)*canvas.height; 
-                    ctx.fillStyle = `rgb(0, ${v}, 0)`;
-                    ctx.fillRect(i*bw, canvas.height-h, bw-1, h);
-                });
-            };
-            draw();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const src = audioCtx.createMediaElementSource(els.audio);
+                analyser = audioCtx.createAnalyser();
+                src.connect(analyser); 
+                analyser.connect(audioCtx.destination);
+                
+                analyser.fftSize = 64; 
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                
+                const canvas = document.getElementById('vu-canvas'); 
+                const ctx = canvas.getContext('2d');
+                
+                const draw = () => {
+                    requestAnimationFrame(draw); 
+                    analyser.getByteFrequencyData(dataArray);
+                    canvas.width = canvas.offsetWidth; 
+                    canvas.height = canvas.offsetHeight;
+                    const bw = canvas.width / dataArray.length;
+                    
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa rastro
+                    dataArray.forEach((v, i) => {
+                        const h = (v/255) * canvas.height; 
+                        ctx.fillStyle = `rgb(0, ${v}, 0)`;
+                        ctx.fillRect(i*bw, canvas.height-h, bw-1, h);
+                    });
+                };
+                draw();
+            } catch (e) {
+                console.error("AudioContext falhou:", e);
+            }
         }
 
-        function togglePlay() { if (els.audio.paused) els.audio.play(); else els.audio.pause(); }
+        async function togglePlay() { 
+            if (audioCtx && audioCtx.state === 'suspended') {
+                await audioCtx.resume();
+            }
+            if (els.audio.paused) els.audio.play(); else els.audio.pause(); 
+        }
+
         function debounce(f, t) { let timer; return (...a) => { clearTimeout(timer); timer = setTimeout(() => f.apply(this, a), t); }; }
         function nextStation() { playStation(currentIndex + 1); }
         function prevStation() { playStation(currentIndex - 1); }
         function updateClock() { els.clock.innerText = new Date().toLocaleTimeString('pt-BR'); }
-        els.audio.onplay = () => { els.playBtn.innerText = "STOP"; };
-        els.audio.onpause = () => { els.playBtn.innerText = "PLAY"; };
+        
+        els.audio.onplay = () => { els.playBtn.innerText = "STOP"; els.playBtn.style.color = "#ff3333"; els.playBtn.style.borderColor = "#ff3333"; };
+        els.audio.onpause = () => { els.playBtn.innerText = "PLAY"; els.playBtn.style.color = "#00ff00"; els.playBtn.style.borderColor = "#00ff00"; };
         document.getElementById('vol').oninput = (e) => els.audio.volume = e.target.value;
 
         init();
