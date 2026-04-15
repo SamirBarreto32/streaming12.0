@@ -20,7 +20,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
         body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; }
 
-        /* BOOT SCREEN - DESIGN ESTENDIDO */
+        /* BOOT SCREEN */
         #boot-screen { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; flex-direction: column; padding: 40px; }
         .boot-top-layer { position: absolute; top: 40px; left: 40px; right: 40px; pointer-events: none; }
         .nexus-title { width: 336px; height: 56px; margin-bottom: 20px; }
@@ -29,7 +29,7 @@
         .boot-info b { color: var(--matrix); }
         .boot-info i { color: var(--danger); font-style: normal; font-weight: bold; }
 
-        /* HUB CENTRAL COM ”RBITAS */
+        /* HUB CENTRAL */
         .central-hub { position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; width: 450px; }
         .nexus-core-container { width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: -45px; z-index: 10; }
         .nexus-sphere-core { width: 68px; height: 68px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff, var(--accent) 45%, #001a33); box-shadow: 0 0 50px rgba(0, 170, 255, 0.9); z-index: 12; animation: pulse-breathing 3s ease-in-out infinite; }
@@ -45,13 +45,13 @@
         @keyframes vibration { 0% { transform: translate(0,0); } 50% { transform: translate(1px, -1px); } 100% { transform: translate(-1px, 1px); } }
         @keyframes pulse-breathing { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        /* LOADING ZONE (+30% COMPRIMENTO) */
+        /* LOADING ZONE */
         .loading-zone { width: 270px; display: flex; flex-direction: column; align-items: center; z-index: 5; }
         .bar-container { width: 100%; height: 3px; background: rgba(255,255,255,0.05); overflow: hidden; border-radius: 1px; }
         .bar-fill { width: 0%; height: 100%; background: var(--matrix); box-shadow: 0 0 15px var(--matrix); transition: width 0.2s linear; }
         .telemetry-row { margin-top: 8px; font-family: 'Courier New', monospace; font-size: 10px; color: var(--matrix); letter-spacing: 1px; display: flex; gap: 15px; white-space: nowrap; }
 
-        /* VISTA UI - MANTIDA ORIGINAL */
+        /* VISTA UI */
         #vista-ui { display: none; width: 100%; height: 100%; padding: 15px; }
         .main-container { display: flex; gap: 15px; width: 100%; height: 96vh; }
         .side-panel { min-width: 280px; display: flex; flex-direction: column; gap: 12px; }
@@ -116,7 +116,7 @@
                     <button id="btn-fav" class="btn-mode" onclick="setMode('fav')"><i data-lucide="star"></i> FAVS</button>
                 </div>
                 <button id="btn-toku" class="btn-mode" onclick="setMode('toku')"><i data-lucide="zap"></i> TOKUSATSU</button>
-                <button id="btn-radio" class="btn-mode" onclick="setMode('radio')"><i data-lucide="radio"></i> R¡DIO</button>
+                <button id="btn-radio" class="btn-mode" onclick="window.location.href='https://samirbarreto32.github.io/streaming12.0/radio/'"><i data-lucide="radio"></i> R√ÅDIO</button>
             </div>
             <div class="content-list" id="channel-list"></div>
         </aside>
