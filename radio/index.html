@@ -154,12 +154,12 @@
             handleCountryChange();
 
             els.countrySelect.onchange = () => {
-                els.search.value = ""; // Limpa campo ao mudar país
+                els.search.value = ""; 
                 handleCountryChange();
             };
             
             els.stateSelect.onchange = () => {
-                els.search.value = ""; // Limpa campo ao mudar estado
+                els.search.value = ""; 
                 fetchStations();
             };
 
