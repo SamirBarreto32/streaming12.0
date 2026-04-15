@@ -3,160 +3,118 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>NEXUS RÁDIO 12.0 - RealPlayer Edition</title>
+    <title>NEXUS RÁDIO 12.0 - Real Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root {
-            /* Paleta RealPlayer Clássica */
             --real-silver: #c0c0c0;
             --real-blue-dark: #003366;
             --real-blue-light: #006699;
-            --real-bg: #2b2b2b;
             --real-lcd: #000000;
-            --real-text: #00ffff; /* Ciano clássico do Real */
+            --real-text: #00ffff;
         }
-
         body {
             background: #1a1a1a url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
-            font-family: "Segoe UI", "Arial", sans-serif;
-            height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
-
-        /* Moldura RealPlayer Estilo Metálico */
         .nexus-frame {
             width: 98vw; height: 96vh; max-width: 1200px;
-            background: var(--real-silver);
-            border: 3px solid #666;
-            border-radius: 12px;
+            background: var(--real-silver); border: 3px solid #666; border-radius: 12px;
             box-shadow: inset 2px 2px 5px #fff, inset -2px -2px 5px #000, 0 10px 40px rgba(0,0,0,0.9);
             display: flex; flex-direction: column; overflow: hidden;
         }
-
         header {
             background: linear-gradient(to bottom, #444, #111);
             padding: 5px 15px; display: flex; justify-content: space-between; align-items: center;
             color: #fff; border-bottom: 2px solid #000;
         }
-
         .win-btn {
-            width: 24px; height: 24px; border: 1px solid #000; border-radius: 50%;
+            width: 22px; height: 22px; border: 1px solid #000; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 10px; cursor: pointer; background: #333; box-shadow: 1px 1px 2px #fff;
+            font-size: 10px; cursor: pointer; background: #333; box-shadow: 1px 1px 2px #fff; text-decoration: none; color: white;
         }
         .btn-close { background: #900; }
-
-        .app-grid { 
-            display: grid; grid-template-columns: 1fr 340px; flex: 1; 
-            overflow: hidden; padding: 10px; gap: 10px; background: #444;
-        }
-
-        /* Lista estilo Playlist antiga */
-        .list-container { 
-            background: white; border: 2px inset #999; overflow-y: auto; height: 100%; border-radius: 4px;
-        }
-
+        .app-grid { display: grid; grid-template-columns: 1fr 340px; flex: 1; overflow: hidden; padding: 10px; gap: 10px; background: #444; }
+        .list-container { background: white; border: 2px inset #999; overflow-y: auto; height: 100%; border-radius: 4px; }
+        
         .radio-row {
             display: grid; grid-template-columns: 40px 1fr 70px 40px;
             padding: 6px 10px; border-bottom: 1px solid #eee; cursor: pointer;
-            color: #333; font-size: 13px; align-items: center;
+            color: #333; font-size: 12px; align-items: center;
         }
         .radio-row:hover { background: #e0f0ff; }
-        .radio-row.active { background: var(--real-blue-dark); color: #fff; }
+        .radio-row.active { background: var(--real-blue-dark) !important; color: #fff !important; }
+        
+        .is-fav-item { color: #0066ff !important; font-weight: bold; }
 
-        .side-panel { 
-            background: var(--real-silver); display: flex; flex-direction: column;
-            gap: 10px; padding: 5px;
-        }
-
-        /* Tela LCD do RealPlayer */
         .monitor-stage { 
             height: 120px; background: var(--real-lcd); border: 4px solid #333; 
-            border-radius: 8px; box-shadow: inset 0 0 15px #00ffff44;
-            display: flex; flex-direction: column; overflow: hidden;
+            border-radius: 8px; display: flex; flex-direction: column; overflow: hidden;
         }
-
-        .info-terminal {
-            background: transparent; padding: 10px; flex: 1;
-            font-size: 11px; color: var(--real-text); font-family: 'Courier New', monospace;
-        }
-
-        /* Botões Arredondados estilo Player 2000 */
+        .info-terminal { padding: 10px; flex: 1; font-size: 11px; color: var(--real-text); font-family: monospace; }
         .controls-area {
             background: linear-gradient(to bottom, #999, #666);
-            padding: 15px; border-radius: 10px; border: 1px solid #444;
-            box-shadow: inset 1px 1px 3px #fff;
+            padding: 15px; border-radius: 10px; border: 1px solid #444; box-shadow: inset 1px 1px 3px #fff;
         }
-
         .btn-play-main {
             background: radial-gradient(circle, #00ffff, #006699);
-            width: 60px; height: 60px; border-radius: 50%; border: 3px solid #222;
-            color: white; font-weight: bold; cursor: pointer;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            width: 55px; height: 55px; border-radius: 50%; border: 3px solid #222;
+            color: white; font-weight: bold; cursor: pointer; box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
         }
-        .btn-play-main:active { transform: scale(0.95); box-shadow: inset 2px 2px 5px #000; }
-
-        .nav-btn {
-            background: #eee; border: 1px solid #777; border-radius: 4px;
-            padding: 5px 12px; font-size: 11px; font-weight: bold; cursor: pointer;
-        }
-
-        .vol-slider { width: 100%; height: 8px; accent-color: var(--real-blue-light); }
-        
+        .nav-btn { background: #eee; border: 1px solid #777; border-radius: 4px; padding: 4px 10px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .menu-bar { background: var(--real-silver); border-bottom: 1px solid #888; display: flex; padding: 4px 10px; font-size: 12px; gap: 15px; }
-        .real-logo { color: #cc0000; font-weight: 900; font-style: italic; font-size: 16px; margin-right: 10px; }
+        .vol-slider { width: 100%; accent-color: var(--real-blue-light); }
+        .neo-input { font-size: 11px; padding: 2px 5px; border-radius: 3px; border: 1px solid #999; }
     </style>
 </head>
 <body>
 
     <div class="nexus-frame">
         <header>
-            <div class="flex items-center gap-2">
-                <span class="real-logo">real</span>
-                <span class="font-bold text-xs">Nexus Rádio 12.0 - [RealPlayer Engineering]</span>
-            </div>
-            <div class="win-controls">
+            <span class="font-bold text-xs uppercase tracking-widest">Nexus Rádio 12.0</span>
+            <div class="flex gap-1">
                 <div class="win-btn">_</div>
-                <div class="win-btn btn-close" onclick="location.reload()">X</div>
+                <a href="#" onclick="window.location.reload()" class="win-btn btn-close">X</a>
             </div>
         </header>
 
         <div class="menu-bar">
-            <span>File</span><span>View</span><span>Play</span><span>Favorites</span><span>Help</span>
+            <div class="cursor-pointer font-semibold" onclick="document.getElementById('fileInput').click()">File</div>
             <div class="ml-auto text-blue-900 font-bold" id="clock">00:00:00</div>
         </div>
 
-        <div class="flex gap-2 p-2 bg-[#ddd] border-b border-[#999]">
-            <input type="text" id="search" class="border p-1 text-xs flex-1 rounded" placeholder="Search Radio Stations...">
-            <select id="countrySelect" class="text-xs p-1 border rounded"></select>
-            <button onclick="showFavorites()" class="nav-btn">⭐ Favorites</button>
+        <div class="flex flex-wrap gap-2 p-2 bg-[#ddd] border-b border-[#999]">
+            <input type="text" id="search" class="neo-input flex-1" placeholder="Pesquisar...">
+            <select id="countrySelect" class="neo-input w-24"></select>
+            <select id="stateSelect" class="neo-input w-24"></select>
+            <button onclick="showFavorites()" class="nav-btn">⭐ Favs</button>
+            <button onclick="resetApp()" class="nav-btn bg-gray-300">🗑️</button>
+            <input type="file" id="fileInput" hidden accept="audio/mp3">
         </div>
 
         <main class="app-grid">
             <div class="list-container" id="listBody"></div>
 
-            <aside class="side-panel">
+            <aside class="side-panel flex flex-col gap-2 p-1">
                 <div class="monitor-stage">
                     <canvas id="vu-canvas" style="width:100%; height:40px"></canvas>
-                    <div class="info-terminal" id="infoBox">
-                        <div id="progContent">RealAudio: Ready...</div>
-                    </div>
+                    <div class="info-terminal" id="progContent">> System Ready_</div>
                 </div>
 
-                <div class="h-24 bg-black flex items-center justify-center border-2 border-gray-400 rounded overflow-hidden" id="stationLogo">
-                    <span class="text-blue-800 font-bold text-4xl opacity-20">real</span>
+                <div class="h-24 bg-black flex items-center justify-center border-2 border-gray-500 rounded" id="stationLogo">
+                    <div class="text-gray-700 font-bold italic text-2xl">NEXUS</div>
                 </div>
 
                 <div class="controls-area">
-                    <div class="mb-2 text-[10px] font-bold text-black text-center uppercase" id="stName">No Content Loaded</div>
+                    <div class="mb-2 text-[10px] font-bold text-black text-center truncate" id="stName">STANDBY</div>
                     <div class="flex items-center justify-around">
                         <button onclick="prevStation()" class="nav-btn">|<<</button>
                         <button id="playBtn" class="btn-play-main">PLAY</button>
                         <button onclick="nextStation()" class="nav-btn">>>|</button>
                     </div>
                     <div class="mt-4">
-                        <div class="flex justify-between text-[9px] font-bold text-gray-700"><span>VOLUME</span><span id="volVal">70%</span></div>
                         <input type="range" id="vol" min="0" max="1" step="0.05" value="0.7" class="vol-slider">
                     </div>
                 </div>
@@ -168,6 +126,8 @@
 
     <script>
         const API = "https://de1.api.radio-browser.info/json";
+        const ESTADOS_BR = ["Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará", "Distrito Federal", "Espírito Santo", "Goiás", "Maranhão", "Mato Grosso", "Mato Grosso do Sul", "Minas Gerais", "Pará", "Paraíba", "Paraná", "Pernambuco", "Piauí", "Rio de Janeiro", "Rio Grande do Norte", "Rio Grande do Sul", "Rondônia", "Roraima", "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"];
+        
         let currentStations = [], currentIndex = -1, audioCtx, analyser, dataArray;
         let favorites = JSON.parse(localStorage.getItem('NEXUS_FAVS')) || [];
 
@@ -175,53 +135,88 @@
             audio: document.getElementById('audio'),
             list: document.getElementById('listBody'),
             countrySelect: document.getElementById('countrySelect'),
+            stateSelect: document.getElementById('stateSelect'),
             search: document.getElementById('search'),
             playBtn: document.getElementById('playBtn'),
             stName: document.getElementById('stName'),
             logo: document.getElementById('stationLogo'),
             progContent: document.getElementById('progContent'),
-            clock: document.getElementById('clock')
+            clock: document.getElementById('clock'),
+            fileInput: document.getElementById('fileInput')
         };
 
         async function init() {
             updateClock(); setInterval(updateClock, 1000);
+            renderStates();
             await fetchCountries();
+            
             els.countrySelect.value = "Brazil";
-            els.countrySelect.onchange = () => fetchStations();
+            handleCountryChange();
+
+            els.countrySelect.onchange = () => {
+                els.search.value = ""; // Limpa pesquisa ao mudar país
+                handleCountryChange();
+            };
+            
+            els.stateSelect.onchange = () => {
+                els.search.value = ""; // Limpa pesquisa ao mudar estado
+                fetchStations();
+            };
+
             els.search.oninput = debounce(() => fetchStations(), 500);
             els.playBtn.onclick = togglePlay;
-            await fetchStations(); 
+            els.fileInput.onchange = loadLocalFile;
+            
+            await fetchStations(true); 
+        }
+
+        function handleCountryChange() {
+            if (els.countrySelect.value === "Brazil") {
+                els.stateSelect.style.display = "inline-block";
+            } else {
+                els.stateSelect.style.display = "none";
+                els.stateSelect.value = "";
+            }
+            fetchStations();
+        }
+
+        function renderStates() {
+            els.stateSelect.innerHTML = '<option value="">(Estado)</option>' + 
+                ESTADOS_BR.map(s => `<option value="${s}">${s}</option>`).join('');
         }
 
         async function fetchCountries() {
-            try {
-                const res = await fetch(`${API}/countries`);
-                const countries = await res.json();
-                els.countrySelect.innerHTML = countries.sort((a,b)=>a.name.localeCompare(b.name)).map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-            } catch(e) {}
+            const res = await fetch(`${API}/countries`);
+            const data = await res.json();
+            els.countrySelect.innerHTML = data.sort((a,b)=>a.name.localeCompare(b.name))
+                .map(c => `<option value="${c.name}">${c.name}</option>`).join('');
         }
 
-        async function fetchStations() {
-            els.list.innerHTML = '<div class="p-4 text-xs">Connecting to Radio Network...</div>';
+        async function fetchStations(auto = false) {
+            els.list.innerHTML = '<div class="p-4 text-xs">Buscando...</div>';
             let url = `${API}/stations/search?limit=60&hidebroken=true&order=clickcount&reverse=true&country=${els.countrySelect.value}`;
             if (els.search.value) url += `&name=${encodeURIComponent(els.search.value)}`;
-            
+            if (els.countrySelect.value === "Brazil" && els.stateSelect.value) url += `&state=${encodeURIComponent(els.stateSelect.value)}`;
+
             try {
                 const res = await fetch(url);
                 currentStations = await res.json();
                 renderStations();
-            } catch(e) { els.list.innerHTML = '<div class="p-4">Failed to load stations.</div>'; }
+                if (auto && currentStations.length > 0) playStation(0);
+            } catch(e) { els.list.innerHTML = '<div class="p-4">Erro de conexão.</div>'; }
         }
 
         function renderStations() {
             els.list.innerHTML = currentStations.map((s, i) => {
                 const isFav = favorites.some(f => f.stationuuid === s.stationuuid);
                 return `
-                <div class="radio-row ${i === currentIndex ? 'active' : ''}" onclick="playStation(${i})">
-                    <span style="opacity:0.5">${i + 1}</span>
+                <div class="radio-row ${i === currentIndex ? 'active' : ''} ${isFav ? 'is-fav-item' : ''}" onclick="playStation(${i})">
+                    <span class="opacity-50">${i + 1}</span>
                     <span class="truncate font-bold">${s.name}</span>
                     <span class="text-right">${s.bitrate || '--'}k</span>
-                    <span onclick="event.stopPropagation(); toggleFav('${s.stationuuid}')">${isFav ? '💙' : '🤍'}</span>
+                    <span onclick="event.stopPropagation(); toggleFav('${s.stationuuid}')" class="text-center">
+                        ${isFav ? '💙' : '🤍'}
+                    </span>
                 </div>`;
             }).join('');
         }
@@ -229,18 +224,53 @@
         function playStation(index) {
             if (index < 0 || index >= currentStations.length) return;
             currentIndex = index;
-            const s = currentStations[currentIndex];
-            
+            const s = currentStations[index];
             if (!audioCtx) setupAudio();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            els.logo.innerHTML = s.favicon ? `<img src="${s.favicon}" class="h-full w-full object-contain">` : `<span class="text-blue-800 font-bold text-4xl opacity-20">real</span>`;
-            
-            els.progContent.innerHTML = `Track: ${s.name}<br>Bitrate: ${s.bitrate || '??'} kbps / ${s.codec || 'MP3'}<br>Status: Receiving Data...`;
-            els.audio.src = s.url_resolved; 
-            els.audio.play();
+            els.audio.src = s.url_resolved || s.url;
+            els.audio.play().catch(() => {});
             els.stName.innerText = s.name;
+            els.progContent.innerHTML = `Track: ${s.name}<br>Bitrate: ${s.bitrate || '--'}kbps`;
+            els.logo.innerHTML = s.favicon ? `<img src="${s.favicon}" class="h-full w-full object-contain">` : `<div class="text-gray-700 font-bold italic text-2xl">NEXUS</div>`;
             renderStations();
+        }
+
+        function toggleFav(uuid) {
+            const station = currentStations.find(s => s.stationuuid === uuid);
+            const idx = favorites.findIndex(f => f.stationuuid === uuid);
+            if (idx > -1) {
+                favorites.splice(idx, 1);
+            } else if (station) {
+                favorites.push(station);
+            }
+            localStorage.setItem('NEXUS_FAVS', JSON.stringify(favorites));
+            renderStations();
+        }
+
+        function showFavorites() {
+            if (favorites.length === 0) return;
+            currentStations = [...favorites];
+            renderStations();
+            playStation(0);
+        }
+
+        function resetApp() {
+            if (confirm("Limpar favoritos e resetar pesquisa?")) {
+                favorites = [];
+                localStorage.removeItem('NEXUS_FAVS');
+                els.search.value = "";
+                els.stateSelect.value = "";
+                fetchStations();
+            }
+        }
+
+        function loadLocalFile(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            const localData = { stationuuid: 'local-'+Date.now(), name: file.name, url_resolved: url, bitrate: 'Local' };
+            currentStations.unshift(localData);
+            renderStations();
+            playStation(0);
         }
 
         function setupAudio() {
@@ -255,8 +285,8 @@
                 canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
                 const bw = canvas.width / dataArray.length;
                 dataArray.forEach((v, i) => {
-                    const h = (v/255)*canvas.height; 
-                    ctx.fillStyle = `rgb(0, ${v+150}, ${v+200})`; // Visualizer Ciano do RealPlayer
+                    const h = (v/255)*canvas.height;
+                    ctx.fillStyle = `rgb(0, ${v+150}, ${v+200})`;
                     ctx.fillRect(i*bw, canvas.height-h, bw-2, h);
                 });
             };
@@ -265,20 +295,7 @@
 
         function togglePlay() { 
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-            if (els.audio.paused) els.audio.play(); else els.audio.pause(); 
-        }
-
-        function toggleFav(id) {
-            const station = currentStations.find(s => s.stationuuid === id);
-            const idx = favorites.findIndex(f => f.stationuuid === id);
-            if (idx > -1) favorites.splice(idx, 1); else favorites.push(station);
-            localStorage.setItem('NEXUS_FAVS', JSON.stringify(favorites));
-            renderStations();
-        }
-
-        function showFavorites() {
-            if (favorites.length === 0) return;
-            currentStations = [...favorites]; renderStations();
+            els.audio.paused ? els.audio.play() : els.audio.pause(); 
         }
 
         function debounce(f, t) { let timer; return (...a) => { clearTimeout(timer); timer = setTimeout(() => f.apply(this, a), t); }; }
@@ -286,12 +303,9 @@
         function prevStation() { playStation(currentIndex - 1); }
         function updateClock() { els.clock.innerText = new Date().toLocaleTimeString('pt-BR'); }
         
-        els.audio.onplay = () => { els.playBtn.innerText = "STOP"; els.playBtn.style.background = "radial-gradient(circle, #ff6666, #990000)"; };
-        els.audio.onpause = () => { els.playBtn.innerText = "PLAY"; els.playBtn.style.background = "radial-gradient(circle, #00ffff, #006699)"; };
-        document.getElementById('vol').oninput = (e) => { 
-            els.audio.volume = e.target.value;
-            document.getElementById('volVal').innerText = Math.round(e.target.value * 100) + '%';
-        };
+        els.audio.onplay = () => { els.playBtn.innerText = "STOP"; };
+        els.audio.onpause = () => { els.playBtn.innerText = "PLAY"; };
+        document.getElementById('vol').oninput = (e) => els.audio.volume = e.target.value;
 
         init();
     </script>
