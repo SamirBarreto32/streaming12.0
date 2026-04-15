@@ -76,7 +76,7 @@
             <span class="font-bold text-xs uppercase tracking-widest">Nexus Rádio 12.0</span>
             <div class="flex gap-1">
                 <div class="win-btn">_</div>
-                <a href="#" onclick="window.location.reload()" class="win-btn btn-close">X</a>
+                <a href="https://samirbarreto32.github.io/streaming12.0/" class="win-btn btn-close">X</a>
             </div>
         </header>
 
@@ -154,12 +154,12 @@
             handleCountryChange();
 
             els.countrySelect.onchange = () => {
-                els.search.value = ""; // Limpa pesquisa ao mudar país
+                els.search.value = ""; // Limpa campo ao mudar país
                 handleCountryChange();
             };
             
             els.stateSelect.onchange = () => {
-                els.search.value = ""; // Limpa pesquisa ao mudar estado
+                els.search.value = ""; // Limpa campo ao mudar estado
                 fetchStations();
             };
 
