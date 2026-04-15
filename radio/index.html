@@ -16,7 +16,6 @@
         }
 
         body {
-            /* Background escuro e minimalista */
             background: #0f0f0f url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
             font-family: "Tahoma", "Segoe UI", sans-serif;
@@ -28,7 +27,6 @@
             overflow: hidden;
         }
 
-        /* Moldura da Janela Black */
         .nexus-frame {
             width: 98vw; 
             height: 96vh;
@@ -42,7 +40,6 @@
             overflow: hidden;
         }
 
-        /* Barra de Título Noir */
         header {
             background: linear-gradient(to bottom, #444 0%, #111 10%, #000 100%);
             padding: 0 10px; 
@@ -66,7 +63,6 @@
         .btn-close { background: linear-gradient(to bottom, #d9534f, #a94442); border-color: #843534; }
         .btn-close:hover { background: #ff3333; }
 
-        /* Grid Principal */
         .app-grid { 
             display: grid; 
             grid-template-columns: 1fr 320px; 
@@ -77,7 +73,6 @@
             background: #222;
         }
 
-        /* Lista de Rádios modo Escuro */
         .list-container { 
             background: #111; 
             border: 1px solid #444; 
@@ -98,7 +93,6 @@
         .radio-row:hover { background: #333; color: #fff; }
         .radio-row.active { background: #444; color: #00ff00; border-left: 3px solid #00ff00; }
         
-        /* Painel Lateral */
         .side-panel { 
             background: #2a2a2a; 
             display: flex; 
@@ -163,8 +157,8 @@
     <div class="nexus-frame">
         <header>
             <div class="flex items-center gap-2">
-                <img src="http://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Windows_XP_Logo.svg" width="16" style="filter: grayscale(1) invert(1);">
-                <span class="font-bold text-xs sm:text-sm truncate">Nexus Rádio 12.0 - </span>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Windows_XP_Logo.svg" width="16" style="filter: grayscale(1) invert(1);">
+                <span class="font-bold text-xs sm:text-sm truncate">Nexus Rádio 12.0 - [SBarreto_Engineering]</span>
             </div>
             <div class="win-controls">
                 <div class="win-btn">_</div>
@@ -200,7 +194,7 @@
                     
                     <div class="status-header">System.Status</div>
                     <div class="logo-area" id="stationLogo">
-                        <img src="http://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">
                     </div>
                     
                     <div class="info-terminal" id="infoBox">
@@ -330,11 +324,27 @@
             if (index < 0 || index >= currentStations.length) return;
             currentIndex = index;
             const s = currentStations[currentIndex];
-            els.logo.innerHTML = s.favicon ? `<img src="${s.favicon}" class="radio-logo-img">` : `<img src="http://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">`;
+            
+            // Tenta converter para HTTPS para evitar bloqueio de Mixed Content
+            let streamUrl = s.url_resolved;
+            if (streamUrl.startsWith("http://")) {
+                streamUrl = streamUrl.replace("http://", "https://");
+            }
+
+            els.logo.innerHTML = s.favicon ? `<img src="${s.favicon}" class="radio-logo-img">` : `<img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">`;
+            
             updateInfo(s);
+            
             if (!audioCtx) setupAudio();
-            els.audio.src = s.url_resolved; 
-            els.audio.play().catch(e => console.log("Play error"));
+            
+            // Tenta tocar com HTTPS, se der erro, volta para a original (Fallback)
+            els.audio.src = streamUrl; 
+            els.audio.play().catch(e => {
+                console.warn("Falha no HTTPS, tentando URL original...");
+                els.audio.src = s.url_resolved;
+                els.audio.play().catch(err => console.error("Erro ao reproduzir stream."));
+            });
+
             els.stName.innerText = s.name;
             renderStations();
         }
@@ -342,6 +352,7 @@
         function updateInfo(s) {
             els.progContent.innerHTML = `
                 > NAME: ${s.name}<br>
+                > URL: ${s.url_resolved}<br>
                 > GENRE: ${s.tags ? s.tags.split(',')[0] : 'N/A'}<br>
                 > COUNTRY: ${s.country}<br>
                 > CODEC: ${s.codec || 'MP3'}<br>
@@ -362,7 +373,7 @@
                 const bw = canvas.width / dataArray.length;
                 dataArray.forEach((v, i) => {
                     const h = (v/255)*canvas.height; 
-                    ctx.fillStyle = `rgb(0, ${v}, 0)`; // Visualizer verde Matrix
+                    ctx.fillStyle = `rgb(0, ${v}, 0)`;
                     ctx.fillRect(i*bw, canvas.height-h, bw-1, h);
                 });
             };
