@@ -163,8 +163,8 @@
     <div class="nexus-frame">
         <header>
             <div class="flex items-center gap-2">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Windows_XP_Logo.svg" width="16" style="filter: grayscale(1) invert(1);">
-                <span class="font-bold text-xs sm:text-sm truncate">Nexus Rádio 12.0 - [SBarreto_Engineering]</span>
+                <img src="http://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Windows_XP_Logo.svg" width="16" style="filter: grayscale(1) invert(1);">
+                <span class="font-bold text-xs sm:text-sm truncate">Nexus Rádio 12.0 - </span>
             </div>
             <div class="win-controls">
                 <div class="win-btn">_</div>
@@ -200,7 +200,7 @@
                     
                     <div class="status-header">System.Status</div>
                     <div class="logo-area" id="stationLogo">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">
+                        <img src="http://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">
                     </div>
                     
                     <div class="info-terminal" id="infoBox">
@@ -330,7 +330,7 @@
             if (index < 0 || index >= currentStations.length) return;
             currentIndex = index;
             const s = currentStations[currentIndex];
-            els.logo.innerHTML = s.favicon ? `<img src="${s.favicon}" class="radio-logo-img">` : `<img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">`;
+            els.logo.innerHTML = s.favicon ? `<img src="${s.favicon}" class="radio-logo-img">` : `<img src="http://upload.wikimedia.org/wikipedia/commons/5/5f/Windows_Media_Player_10_Logo.svg" width="50" style="opacity: 0.2; filter: invert(1);">`;
             updateInfo(s);
             if (!audioCtx) setupAudio();
             els.audio.src = s.url_resolved; 
