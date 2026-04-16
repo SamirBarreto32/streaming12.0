@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS DARK CORE v10</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            width: 100%; height: 100vh; 
+            background: #000;
+            overflow: hidden; 
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            padding: 5px;
+            color: #ccc;
+        }
+
+        #main-interface {
+            display: flex;
+            width: 100%;
+            height: calc(100% - 50px);
+            gap: 5px;
+        }
+
+        .nexus-panel {
+            background: #111;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .side-panel { width: 300px; transition: 0.3s; }
+        .hidden { display: none !important; }
+
+        .panel-header {
+            padding: 10px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .stream-item {
+            padding: 8px;
+            margin-bottom: 3px;
+            background: #161616;
+            border: 1px solid #222;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stream-item:hover { background: #222; border-color: #444; }
+        .stream-item.active { background: #333; color: #00ff41; border-color: #00ff41; }
+
+        .fav-star { color: #444; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .fav-star.active { color: #ffcc00; text-shadow: 0 0 5px #ffcc00; }
+
+        #monitor-shell {
+            flex-grow: 1;
+            background: #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #222;
+        }
+
+        #mask-container {
+            width: 95%;
+            max-width: 850px; 
+            height: 518px; 
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #333;
+            background: #000;
+        }
+
+        .bottom-shield {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 37px; 
+            background: #000;
+            z-index: 50; 
+            border-top: 1px solid #222;
+        }
+
+        iframe#masked-iframe {
+            width: 100%;
+            height: 1200px;
+            position: absolute;
+            top: 0;
+            border: none;
+            z-index: 10;
+        }
+
+        #control-rack {
+            height: 45px;
+            margin-top: 5px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 10px;
+            border: 1px solid #333;
+        }
+
+        .btn-nexus {
+            background: #222;
+            color: #ccc;
+            border: 1px solid #444;
+            padding: 5px 12px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .btn-nexus:hover { background: #333; color: #fff; border-color: #666; }
+        .btn-fav-mode { border-color: #ffcc00; color: #ffcc00; }
+        .btn-trash { border-color: #ff4444; color: #ff4444; }
+        .btn-tv { border-color: #00ff41; color: #00ff41; }
+
+        .fav-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 5px;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+        }
+
+        .fav-row { display: flex; gap: 2px; }
+        .fav-row button { flex: 1; padding: 4px; font-size: 9px; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+    </style>
+</head>
+<body onload="bootNexus()">
+
+<div id="main-interface">
+    <div id="left-panel" class="side-panel nexus-panel">
+        <div id="left-header" class="panel-header">BIBLIOTECA</div>
+        <div id="fav-management" class="fav-controls hidden">
+            <div class="fav-row">
+                <button class="btn-nexus" onclick="playFavoriteList()">▶ PLAY LISTA</button>
+                <button class="btn-nexus btn-trash" onclick="clearFavorites()">🗑 LIXEIRA</button>
+            </div>
+            <div class="fav-row">
+                <button class="btn-nexus" onclick="prevFav()">« ANT</button>
+                <button class="btn-nexus" onclick="nextFav()">PROX »</button>
+            </div>
+        </div>
+        <div id="titles-list" class="list-container"></div>
+    </div>
+
+    <div id="monitor-shell">
+        <div id="mask-container">
+            <div class="bottom-shield"></div>
+            <iframe id="masked-iframe" allowfullscreen allow="autoplay"></iframe>
+        </div>
+    </div>
+
+    <div id="right-panel" class="side-panel nexus-panel">
+        <div class="panel-header">EPISÓDIOS</div>
+        <div id="episodes-list" class="list-container"></div>
+    </div>
+</div>
+
+<div id="control-rack">
+    <div style="width: 10px; height: 10px; border-radius: 50%; background: #00ff41; box-shadow: 0 0 5px #00ff41;"></div>
+    <button class="btn-nexus" onclick="toggleFavoritesMode()" id="btn-fav-toggle">⭐ FAVORITOS</button>
+    
+    <button class="btn-nexus btn-tv" onclick="fecharSessaoERedirecionar('https://samirbarreto32.github.io/streaming12.0/')">📺 TV ONLINE</button>
+    
+    <button class="btn-nexus">PRÓXIMA ABA</button> <div style="flex-grow: 1;"></div>
+    <span id="system-status" style="font-size: 10px; letter-spacing: 1px; color: #00ff41;">NEXUS_READY</span>
+</div>
+
+<script>
+    const LIBRARY_URL = "https://raw.githubusercontent.com/SamirBarreto32/animetoku/refs/heads/main/playlist.m3u8.txt";
+    const PLAYER_BASE = "https://play.tokusatsus.com/player.php?id=";
+    
+    let database = {};
+    let favorites = [];
+    let isFavMode = false;
+    let currentFavIndex = -1;
+    let currentActiveSerie = "";
+
+    // FUNÇÃO PARA FECHAR SESSÃO E REDIRECIONAR
+    function fecharSessaoERedirecionar(url) {
+        // Limpa o player atual para encerrar a sessão de streaming
+        document.getElementById('masked-iframe').src = "about:blank";
+        // Redireciona a página principal para o novo link
+        window.location.href = url;
+    }
+
+    async function bootNexus() {
+        try {
+            const response = await fetch(LIBRARY_URL);
+            const data = await response.text();
+            processDatabase(data);
+            
+            const series = Object.keys(database);
+            if(series.length > 0) {
+                const firstSerie = series[0];
+                showEpisodes(firstSerie);
+                if(database[firstSerie].length > 0) {
+                    loadSignal(database[firstSerie][0].url);
+                    setTimeout(() => {
+                        const firstEp = document.querySelector('#episodes-list .stream-item');
+                        if(firstEp) firstEp.classList.add('active');
+                    }, 100);
+                }
+            }
+        } catch (e) { console.error("Erro de conexão"); }
+    }
+
+    function processDatabase(content) {
+        const lines = content.split('\n');
+        database = {};
+        lines.forEach((line, index) => {
+            if (line.includes('#EXTINF:')) {
+                const fullTitle = line.split(',')[1]?.trim();
+                const serieName = fullTitle.split('-')[0].trim(); 
+                const idLine = lines[index + 1]?.trim();
+                if (idLine && !idLine.startsWith('#')) {
+                    if (!database[serieName]) database[serieName] = [];
+                    database[serieName].push({
+                        title: fullTitle,
+                        url: `${PLAYER_BASE}${idLine.replace('URL_DO_SERVIDOR/', '').trim()}&title=${encodeURIComponent(fullTitle)}`
+                    });
+                }
+            }
+        });
+        renderSeries();
+    }
+
+    function renderSeries() {
+        const list = document.getElementById('titles-list');
+        list.innerHTML = '';
+        Object.keys(database).forEach(serie => {
+            const div = document.createElement('div');
+            div.className = 'stream-item';
+            if(serie === currentActiveSerie) div.classList.add('active');
+            div.innerText = serie;
+            div.onclick = () => showEpisodes(serie, div);
+            list.appendChild(div);
+        });
+    }
+
+    function showEpisodes(serie, element) {
+        currentActiveSerie = serie;
+        document.querySelectorAll('#titles-list .stream-item').forEach(el => el.classList.remove('active'));
+        if(element) {
+            element.classList.add('active');
+        } else {
+            const items = document.querySelectorAll('#titles-list .stream-item');
+            items.forEach(item => { if(item.innerText === serie) item.classList.add('active'); });
+        }
+        const epList = document.getElementById('episodes-list');
+        epList.innerHTML = '';
+        database[serie].forEach(ep => {
+            const div = document.createElement('div');
+            div.className = 'stream-item';
+            div.innerHTML = `<span>${ep.title}</span><span class="fav-star ${isFav(ep.url)?'active':''}" onclick="toggleFav(event, '${ep.title}', '${ep.url}')">★</span>`;
+            div.onclick = () => loadSignal(ep.url, div);
+            epList.appendChild(div);
+        });
+    }
+
+    function toggleFav(e, title, url) {
+        e.stopPropagation();
+        const index = favorites.findIndex(f => f.url === url);
+        if (index > -1) favorites.splice(index, 1);
+        else favorites.push({ title, url });
+        if (isFavMode) renderFavoritesList();
+        else e.target.classList.toggle('active');
+    }
+
+    function isFav(url) { return favorites.some(f => f.url === url); }
+
+    function toggleFavoritesMode() {
+        isFavMode = !isFavMode;
+        const leftHeader = document.getElementById('left-header');
+        const favMgmt = document.getElementById('fav-management');
+        const rightPanel = document.getElementById('right-panel');
+        const btnToggle = document.getElementById('btn-fav-toggle');
+        if (isFavMode) {
+            leftHeader.innerText = "LISTA DE FAVORITOS";
+            favMgmt.classList.remove('hidden');
+            rightPanel.classList.add('hidden');
+            btnToggle.classList.add('btn-fav-mode');
+            renderFavoritesList();
+        } else {
+            leftHeader.innerText = "BIBLIOTECA";
+            favMgmt.classList.add('hidden');
+            rightPanel.classList.remove('hidden');
+            btnToggle.classList.remove('btn-fav-mode');
+            renderSeries();
+        }
+    }
+
+    function renderFavoritesList() {
+        const list = document.getElementById('titles-list');
+        list.innerHTML = '';
+        favorites.forEach((fav, index) => {
+            const div = document.createElement('div');
+            div.className = `stream-item ${currentFavIndex === index ? 'active' : ''}`;
+            div.innerHTML = `<span>${fav.title}</span><span class="fav-star active">★</span>`;
+            div.onclick = () => {
+                currentFavIndex = index;
+                loadSignal(fav.url, div);
+            };
+            list.appendChild(div);
+        });
+    }
+
+    function clearFavorites() {
+        favorites = [];
+        currentFavIndex = -1;
+        if(isFavMode) toggleFavoritesMode();
+        if(currentActiveSerie) showEpisodes(currentActiveSerie, null);
+        document.getElementById('masked-iframe').src = '';
+        document.getElementById('system-status').innerText = "Tokubrazukas";
+    }
+
+    function playFavoriteList() {
+        if (favorites.length > 0) {
+            currentFavIndex = 0;
+            executeFavorite(0);
+        }
+    }
+
+    function executeFavorite(index) {
+        if (index >= favorites.length) return;
+        loadSignal(favorites[index].url);
+        renderFavoritesList();
+    }
+
+    function nextFav() {
+        if (currentFavIndex < favorites.length - 1) {
+            currentFavIndex++;
+            executeFavorite(currentFavIndex);
+        }
+    }
+
+    function prevFav() {
+        if (currentFavIndex > 0) {
+            currentFavIndex--;
+            executeFavorite(currentFavIndex);
+        }
+    }
+
+    function loadSignal(url, element) {
+        if (!url) return;
+        if (element) {
+            element.parentElement.querySelectorAll('.stream-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+        document.getElementById('masked-iframe').src = url;
+    }
+</script>
+</body>
+</html>
