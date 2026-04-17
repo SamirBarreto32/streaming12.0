@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokubrazukas </title>
+    <style>
+        :root {
+            --aero-bg: rgba(255, 255, 255, 0.18);
+            --aero-border: rgba(255, 255, 255, 0.4);
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --neon-blue: #00ffff;
+            --border-color: rgba(0, 255, 255, 0.3);
+            --scroll-thumb: rgba(150, 150, 150, 0.5);
+        }
+
+        /* SCROLLBAR SLIM */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }
+
+        body { 
+            background: #001a33 url('https://raw.githubusercontent.com/SamirBarreto32/imagens/main/wallpaper_vista.jpg') no-repeat center center fixed; 
+            background-size: cover;
+            color: #fff; 
+            font-family: var(--font-family); 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column;
+            height: 100vh; 
+            overflow: hidden;
+            padding: 3mm 10px 10px 10px;
+            box-sizing: border-box;
+        }
+
+        body::after {
+            content: "";
+            position: absolute;
+            top: 5px; left: 5px; right: 5px; bottom: 5px;
+            border: 2px double var(--border-color);
+            pointer-events: none;
+            border-radius: 10px;
+            z-index: 999;
+        }
+
+        .aero-window {
+            background: var(--aero-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--aero-border);
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            margin: 5px;
+            z-index: 10;
+        }
+
+        .window-header {
+            height: 30px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; padding: 0 12px;
+            font-size: 11px; font-weight: bold;
+            border-radius: 8px 8px 0 0;
+            flex-shrink: 0;
+        }
+
+        /* --- ARVORE DE DIRETÓRIOS --- */
+        #tree-content {
+            background: #fff;
+            color: #000;
+            padding: 15px;
+            font-size: 11px;
+            flex-grow: 1;
+            margin: 8px;
+            border-radius: 4px;
+            overflow-y: auto;
+            border: 1px solid #333;
+        }
+
+        #tree-content ul { list-style: none; padding-left: 18px; margin: 0; }
+        #tree-content li { position: relative; margin: 0; padding: 2px 0; line-height: 20px; }
+        #tree-content li::before { content: ""; position: absolute; left: -10px; top: -10px; bottom: 10px; border-left: 1px dotted #999; }
+        #tree-content li::after { content: ""; position: absolute; left: -10px; top: 10px; width: 10px; border-top: 1px dotted #999; }
+        #tree-content li:last-child::before { height: 20px; bottom: auto; }
+        .root-node > li::before, .root-node > li::after { display: none !important; }
+
+        .tree-item { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+        .tree-item img { width: 16px; height: 16px; flex-shrink: 0; }
+
+        /* --- BOTÕES E LAYOUT --- */
+        .btn-vista {
+            background: linear-gradient(180deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.3) 100%);
+            border: 1px solid rgba(0,0,0,0.4);
+            border-radius: 3px;
+            color: white;
+            padding: 4px 8px;
+            font-size: 9px;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+
+        .main-content { display: flex; flex-grow: 1; min-height: 0; }
+        
+        #sidebar-left { width: 23%; min-width: 250px; flex-shrink: 0; }
+        #sidebar-right { width: 20%; min-width: 200px; flex-shrink: 0; }
+        #main-viewer { flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        #file-explorer-content { background: rgba(0,0,0,0.6); flex-grow: 1; margin: 8px; padding: 12px; border-radius: 4px; overflow-y: auto; }
+
+        .vista-monitor {
+            background: #000; padding: 8px; border-radius: 8px; border: 2px solid #555;
+            width: 95%; aspect-ratio: 16 / 9; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        .fav-controls { display: none; gap: 4px; margin-bottom: 10px; width: 100%; justify-content: space-between; }
+        .fav-controls .btn-vista { flex: 1; padding: 4px 2px; text-align: center; font-size: 8px; }
+
+        .file-entry { display: flex; align-items: center; gap: 8px; padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 10px; }
+        .fav-star { margin-left: auto; cursor: pointer; font-size: 16px; color: #444; }
+        .fav-star.active { color: #ffcc00; text-shadow: 0 0 8px #ffaa00; }
+
+        .placa-tecnica {
+            position: absolute; bottom: 15px; right: 25px;
+            font-family: 'Courier New', monospace; font-size: 9px; color: var(--neon-blue); text-align: right;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav aero-window" style="height: 55px; flex-direction: row; align-items: center; padding: 0 15px; gap: 10px; flex-shrink: 0;">
+        <button class="btn-vista" onclick="location.reload()">REBOOT</button>
+        <a href="https://samirBarreto32.github.io/streaming12.0/radio/toku_index.html" class="btn-vista">VOLTAR</a>
+        <a href="https://samirbarreto32.github.io/streaming12.0/" class="btn-vista" style="color: var(--neon-blue);">TV DIGITAL</a>
+        <button class="btn-vista" onclick="toggleView('fav')" style="color:#ffcc00;">★ FAVORITOS</button>
+        <div style="margin-left:auto; display:flex; align-items:center; gap:15px;">
+            <span style="color:var(--neon-blue); font-size:10px; font-weight:bold;">TOKUBRAZUKAS</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="sidebar-left" class="aero-window">
+            <div class="window-header">MEU COMPUTADOR</div>
+            <div id="tree-content">
+                <ul class="root-node">
+                    <li>
+                        <div class="tree-item">
+                            <img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/network.jpg">
+                            <b>Meu Computador</b>
+                        </div>
+                        <ul>
+                            <li>
+                                <div class="tree-item">
+                                    <img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/unidade%20c.png" style="width:20px">
+                                    Disco Local (C:)
+                                </div>
+                                <ul>
+                                    <li><div class="tree-item" onclick="loadDir('c/cybercop-dublado', 34, 'Cybercop')"><img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/pastas.png">Cybercop</div></li>
+                                    <li><div class="tree-item" onclick="loadDir('tokusatsus/m/machineman-dublado', 35, 'Machineman')"><img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/pastas.png">Machineman</div></li>
+                                    <li><div class="tree-item" onclick="loadDir('g/ghost-in-the-shell-sac-2045-season-2', 12, 'Ghost in the Shell S2')"><img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/pastas.png">Ghost in the Shell S2</div></li>
+                                    <li><div class="tree-item" onclick="loadDir('m/mobile-suit-gundam-0079', 43, 'Gundam 0079')"><img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/pastas.png">Gundam 0079</div></li>
+                                    <li><div class="tree-item" onclick="loadDir('c/caverna-do-dragao-dublado', 28, 'Caverna do Dragão')"><img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/pastas.png">Caverna do Dragão</div></li>
+                                    <li><div class="tree-item" onclick="loadDir('c/circulo-de-fogo-the-black-dublado', 7, 'Círculo de Fogo')"><img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/pastas.png">Círculo de Fogo</div></li>
+                                    <li><div class="tree-item" onclick="loadDir('h/homem-passaro-dublado', 20, 'Homem Pássaro')"><img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/pastas.png">Homem Pássaro</div></li>
+                                    <li>
+                                        <div class="tree-item"><img src="https://img.icons8.com/ios-filled/50/000000/folder-invoices.png">Arquivos de Programa</div>
+                                        <ul>
+                                            <li>
+                                                <div class="tree-item"><img src="https://img.icons8.com/ios-filled/50/000000/folder-invoices.png">Windows</div>
+                                                <ul>
+                                                    <li>
+                                                        <div class="tree-item"><img src="https://img.icons8.com/ios-filled/50/000000/folder-invoices.png">System 32</div>
+                                                        <ul>
+                                                            <li><div class="tree-item"><img src="https://img.icons8.com/ios-filled/50/000000/folder-invoices.png">drivers</div></li>
+                                                            <li><div class="tree-item"><img src="https://img.icons8.com/ios-filled/50/000000/folder-invoices.png">config</div></li>
+                                                            <li><div class="tree-item"><img src="https://img.icons8.com/ios-filled/50/000000/folder-invoices.png">oobe</div></li>
+                                                            <li><div class="tree-item"><img src="https://img.icons8.com/material-outlined/24/000000/settings-backup-restore.png">kernel32.dll</div></li>
+                                                            <li><div class="tree-item"><img src="https://img.icons8.com/material-outlined/24/000000/settings-backup-restore.png">user32.dll</div></li>
+                                                            <li><div class="tree-item"><img src="https://img.icons8.com/material-outlined/24/000000/exe.png">cmd.exe</div></li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="main-viewer">
+            <div class="vista-monitor">
+                <iframe id="video-frame" src=""></iframe>
+            </div>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+                <button class="btn-vista" id="m1" onclick="switchMotor(1)" style="border-color: var(--neon-blue);">MOTOR 1</button>
+                <button class="btn-vista" id="m2" onclick="switchMotor(2)">MOTOR 2</button>
+            </div>
+        </div>
+
+        <div id="sidebar-right" class="aero-window">
+            <div class="window-header" id="right-header">DATA INDEX</div>
+            <div id="file-explorer-content">
+                <div id="fav-nav" class="fav-controls">
+                    <button class="btn-vista" onclick="prevVideo()">RETR.</button>
+                    <button class="btn-vista" onclick="play(0)">PLAY AUTO</button>
+                    <button class="btn-vista" onclick="nextVideo()">AVANÇ.</button>
+                </div>
+                <div id="file-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="placa-tecnica">
+        Samir Barreto<br>NEXUS CORE v11.1<br>Engenharia de Software<br>17/04/2026
+    </div>
+
+    <script>
+        let currentDir = [], favorites = [], playlist = [], curIndex = -1, curMotor = 1;
+
+        function loadDir(path, total, name) {
+            document.getElementById('right-header').innerText = `DATA INDEX: ${name.toUpperCase()}`;
+            document.getElementById('fav-nav').style.display = 'none';
+            currentDir = [];
+            for(let i=1; i<=total; i++) {
+                currentDir.push({ 
+                    path, 
+                    ep: i.toString().padStart(2, '0'), 
+                    title: name.toUpperCase(),
+                    order: i
+                });
+            }
+            playlist = currentDir;
+            renderExplorer();
+        }
+
+        function toggleView(mode) {
+            const nav = document.getElementById('fav-nav');
+            if(mode === 'fav') {
+                playlist = favorites;
+                document.getElementById('right-header').innerText = "FAVORITOS";
+                nav.style.display = 'flex';
+            } else {
+                playlist = currentDir;
+                document.getElementById('right-header').innerText = "DATA INDEX";
+                nav.style.display = 'none';
+            }
+            renderExplorer();
+        }
+
+        function renderExplorer() {
+            const container = document.getElementById('file-list');
+            container.innerHTML = playlist.length ? "" : "<div style='text-align:center; padding:20px; opacity:0.3; font-size:10px;'>[ INDEX VAZIO ]</div>";
+            
+            playlist.forEach((item, index) => {
+                const isFav = favorites.some(f => f.path === item.path && f.ep === item.ep);
+                const div = document.createElement('div');
+                div.className = 'file-entry';
+                div.innerHTML = `
+                    <img src="https://raw.githubusercontent.com/SamirBarreto32/imagens/main/arquiv.mp4.png" width="14" onclick="play(${index})" style="cursor:pointer">
+                    <span style="flex-grow:1; cursor:pointer; overflow:hidden; text-overflow:ellipsis;" onclick="play(${index})">
+                        ${item.order}. ${item.title}_EP${item.ep}.mp4
+                    </span>
+                    <span class="fav-star ${isFav?'active':''}" onclick="toggleFav(event, ${index})">★</span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function toggleFav(e, index) {
+            e.stopPropagation();
+            const item = playlist[index];
+            const fIndex = favorites.findIndex(f => f.path === item.path && f.ep === item.ep);
+            if(fIndex > -1) favorites.splice(fIndex, 1);
+            else favorites.push(item);
+            renderExplorer();
+        }
+
+        function play(index) {
+            if(index < 0 || index >= playlist.length) return;
+            curIndex = index; const item = playlist[index];
+            let url = `https://api.anivideo.net/videohls.php?d=https://cdn-s01.mywallpaper-4k-image.net/stream/${item.path}/${item.ep}.mp4/index.m3u8`;
+            if(curMotor === 2) url += "&p=2";
+            document.getElementById('video-frame').src = url;
+        }
+
+        function switchMotor(m) { 
+            curMotor = m; 
+            document.getElementById('m1').style.borderColor = (m === 1) ? 'var(--neon-blue)' : 'rgba(0,0,0,0.4)';
+            document.getElementById('m2').style.borderColor = (m === 2) ? 'var(--neon-blue)' : 'rgba(0,0,0,0.4)';
+            if(curIndex !== -1) play(curIndex); 
+        }
+
+        function nextVideo() { if(curIndex < playlist.length - 1) play(curIndex + 1); }
+        function prevVideo() { if(curIndex > 0) play(curIndex - 1); }
+    </script>
+</body>
+</html>
