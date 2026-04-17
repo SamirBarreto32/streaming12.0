@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -190,7 +190,9 @@
     
     <button class="btn-nexus btn-tv" onclick="fecharSessaoERedirecionar('https://samirbarreto32.github.io/streaming12.0/')">📺 TV ONLINE</button>
     
-    <button class="btn-nexus">PRÓXIMA ABA</button> <div style="flex-grow: 1;"></div>
+    <button class="btn-nexus" onclick="fecharSessaoERedirecionar('https://samirbarreto32.github.io/streaming12.0/radio/toku2_index.html')">PRÓXIMA ABA</button> 
+    
+    <div style="flex-grow: 1;"></div>
     <span id="system-status" style="font-size: 10px; letter-spacing: 1px; color: #00ff41;">NEXUS_READY</span>
 </div>
 
@@ -204,11 +206,8 @@
     let currentFavIndex = -1;
     let currentActiveSerie = "";
 
-    // FUNÇÃO PARA FECHAR SESSÃO E REDIRECIONAR
     function fecharSessaoERedirecionar(url) {
-        // Limpa o player atual para encerrar a sessão de streaming
         document.getElementById('masked-iframe').src = "about:blank";
-        // Redireciona a página principal para o novo link
         window.location.href = url;
     }
 
